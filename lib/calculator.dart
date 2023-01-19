@@ -1,52 +1,55 @@
-const marks = ['+', '-', '×', '÷','±','%'];
+import 'package:math_expressions/math_expressions.dart';
 
-class Calculator{
-  static List number = [];
-  static List mark = [];
-  static String buffer = '';
+class Calculator {
+  final List<String> values = [];
+  String? answer;
 
-  static void button(String letter){
-    if(marks.contains(letter)){
-      mark.add(letter);
-      number.add(double.parse(buffer));
-      buffer = '';
-    }
-    else if(letter == 'C'){
-      number.clear();
-      mark.clear();
-      buffer = '';
-    }
-    else if(letter == '='){
-      return;
-    }
-    else{
-      buffer += letter;
-    }
+  void addValue(String value) {
+    values.add(value);
   }
 
-  static double result = 0;
-  static String execute(){
-    number.add(double.parse(buffer));
-    if (number.isEmpty)
-      {return '0';
-      }
-    result = number[0];
-    for (int i = 0; i < mark.length; i++) {
-      if (mark[i] == '+') {
-        result += number[i + 1];
-      }else if (mark[i] == '-') {
-        result -= number[i + 1];
-      }else if (mark[i] == '×') {
-        result *= number[i + 1];
-      }else if (mark[i] == '÷' && number[i + 1] != 0) {
-        result /= number[i + 1];
-      }else {
-        return 'e';
-      }}
-    number.clear();
-    mark.clear();
-    buffer = '';
-    var resultStr = result.toString().split('.');
-    return resultStr[1] == '0' ? resultStr[0] : result.toString();
+  void addMarks(String mark) {
+    values.add(mark);
+  }
+
+  void clear() {
+    values.clear();
+    answer = null;
+  }
+
+  void calculate() {
+    Parser parser = Parser();
+    String formula = '';
+
+    for (final element in values) {
+      formula = formula + element.toString();
+    }
+
+    Expression expression = parser.parse(formula);
+    answer =
+        expression.evaluate(EvaluationType.REAL, ContextModel()).toString();
+    // int index = 0;
+    // double? tempValue;
+
+    // for (var element in values) {
+    //   if (answer != null) {
+    //     tempValue = answer;
+    //   }
+
+    //   if (tempValue == null) {
+    //     tempValue = element;
+    //   } else {
+    //     switch (marks[index]) {
+    //       case '+':
+    //         answer = tempValue + element;
+    //         break;
+    //       case '-':
+    //         answer = tempValue - element;
+    //         break;
+    //     }
+    //     tempValue = answer;
+    //     index = index + 1;
+    //   }
+    // }
   }
 }
