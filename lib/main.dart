@@ -1,6 +1,7 @@
+import 'package:calculator2/buttons/mark_button.dart';
+import 'package:calculator2/buttons/num_button.dart';
 import 'package:flutter/material.dart';
-import 'dart:async';
-import 'calculator.dart';
+
 
 void main() {
   runApp(const MyApp());
@@ -12,36 +13,125 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      home: MyHomePage(),
+      home: CalculatorPage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+class CalculatorPage extends StatefulWidget {
+  const CalculatorPage({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<CalculatorPage> createState() => _CalculatorPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  String value = '0';
+class _CalculatorPageState extends State<CalculatorPage> {
 
-  void addNumText(String letter) {
+  //実際に表示される値
+  String value = '0';
+  //valueを保管しておく
+  List<String> nums = ['0'];
+  //入力したmarkを保管しておく
+  List<String> marks = [];
+  //numsの番地
+  int index = 0;
+  //計算結果を一時的に保管
+  double resultNum = 0;
+
+
+  //数字を押したときの処理
+  void addNumText(String num) {
     setState(() {
-      if (value == '0') {
-        value = letter;
-      } else if (letter == '=') {
-        value = '';
-        var ans = Calculator.execute();
-        controller.sink.add(ans);
-      } else {
-        value += letter;
+      //符号の後に数字を入力するとき1度valueを0にする
+      if(nums.length == marks.length && marks.contains('%') == false){
+        value = '0';
+        value = num;
+        nums.add(num);
+      //％の後にすぐ数字を入力した場合
+      } else if(nums.length == marks.length && marks.contains('%')){
+        nums[index] = num;
+        marks.removeLast();
+        value = num;
+      //数字入力の基本
+      }else {
+        if (value == '0') {
+          value = num;
+          nums.first = num;
+        } else {
+          value += num;
+          nums[index] = value;
+        }
       }
 
     });
   }
+  //+-×÷=が押された時の計算処理など
+  void calculateFormula(){
+    for(int i = 0; nums.length > i; i++){
+      if(i == 0){resultNum = double.parse(nums.first);}
+      else if(marks.length > i - 1){
+        switch(marks[i - 1]){
+          case '＋':
+            resultNum += double.parse(nums[i]);
+            value = resultNum.toString();
+            if(value.endsWith('.0')){
+              value = value.substring(0,value.length - 2);
+            }
+            break;
+          case '－':
+            resultNum -= double.parse(nums[i]);
+            value = resultNum.toString();
+            if(value.endsWith('.0')){
+              value = value.substring(0,value.length - 2);
+            }
+            break;
+          case '×':
+            resultNum *= double.parse(nums[i]);
+            value = resultNum.toString();
+            if(value.endsWith('.0')){
+              value = value.substring(0,value.length - 2);
+            }
+            break;
+          case '÷':
+            resultNum /= double.parse(nums[i]);
+            value = resultNum.toString();
+            if(value.endsWith('.0')){
+              value = value.substring(0,value.length - 2);
+            }
+            break;
+        }
+      }
+    }
+  }
 
+  void plusOrMinus (){
+    if(value.contains('-')){
+      value = value.substring(1,value.length);
+    } else {
+      value = '-$value';
+    }
+  }
+
+  void percent(){
+    setState(() {
+      if(index == 0){
+        resultNum = double.parse(nums[0]) / 100;
+        value = resultNum.toString();
+        nums[0] = resultNum.toString();
+        marks.add('%');
+      }else{
+        nums[index] = (resultNum * double.parse(nums[index]) / 100).toString();
+        resultNum = double.parse(nums[index]);
+        value = nums[index];
+        marks.add('%');
+      }
+      if(value.endsWith('.0')){
+        value = value.substring(0,value.length - 2);
+      }
+    });
+  }
+
+  //小数点を入力する関数
   void dotText() {
     setState(() {
       if(value.contains('.') == true){
@@ -52,9 +142,14 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  //Cを押してvalueを0にする関数
   void clearNumText() {
     setState(() {
       value = '0';
+      nums = ['0'];
+      marks = [];
+      resultNum = 0;
+      index = 0;
     });
   }
 
@@ -79,6 +174,106 @@ class _MyHomePageState extends State<MyHomePage> {
     NumButton numButton9 =
     NumButton(buttonNum: '9', onPressed: () => addNumText('9'));
 
+    MarkButton plusButton = MarkButton(
+      buttonMark: '＋',
+      backGroundColor: Colors.orange,
+      onPressed: (){
+        setState(() {
+          if(marks.contains('%')){
+            marks.removeLast();
+          }
+          if(nums.length > marks.length) {
+            index++;
+            marks.add('＋');
+            calculateFormula();
+          }
+        });
+      },
+    );
+
+    MarkButton minusButton = MarkButton(
+      buttonMark: '－',
+      backGroundColor: Colors.orange,
+      onPressed: (){
+        setState(() {
+          if(marks.contains('%')){
+            marks.removeLast();
+          }
+          if(nums.length > marks.length) {
+            index++;
+            marks.add('－');
+            calculateFormula();
+          }
+        });
+      },
+    );
+
+    MarkButton multiButton = MarkButton(
+      buttonMark: '×',
+      backGroundColor: Colors.orange,
+      onPressed: (){
+        setState(() {
+          if(marks.contains('%')){
+            marks.removeLast();
+          }
+          if(nums.length > marks.length) {
+            index++;
+            marks.add('×');
+            calculateFormula();
+          }
+        });
+      },
+    );
+
+    MarkButton divButton = MarkButton(
+      buttonMark: '÷',
+      backGroundColor: Colors.orange,
+      onPressed: (){
+        setState(() {
+          if(marks.contains('%')){
+            marks.removeLast();
+          }
+          if(nums.length > marks.length) {
+            index++;
+            marks.add('÷');
+            calculateFormula();
+          }
+        });
+      },
+    );
+
+    MarkButton equalButton = MarkButton(
+      buttonMark: '=',
+      backGroundColor: Colors.orange,
+      onPressed: (){
+        setState(() {
+          calculateFormula();
+          marks.clear();
+          nums.clear();
+          nums.add(resultNum.toString());
+        });
+      },
+    );
+
+    MarkButton plusMinusButton = MarkButton(
+        buttonMark: '±',
+        backGroundColor: Colors.white38,
+        onPressed: (){
+          setState(() {
+            plusOrMinus();
+          });
+        }
+    );
+
+    MarkButton percentButton = MarkButton(
+        buttonMark: '%',
+        backGroundColor: Colors.white38,
+        onPressed: (){
+          percent();
+        },
+    );
+
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -102,9 +297,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   buttonMark: 'C',
                   backGroundColor: Colors.white38,
                   onPressed: () => clearNumText()),
-              const MarkButton(buttonMark: '±', backGroundColor: Colors.white38),
-              const MarkButton(buttonMark: '%', backGroundColor: Colors.white38),
-              const MarkButton(buttonMark: '÷', backGroundColor: Colors.orange),
+              plusMinusButton,
+              percentButton,
+              divButton,
             ],
           ),
           Row(
@@ -113,7 +308,7 @@ class _MyHomePageState extends State<MyHomePage> {
               numButton7,
               numButton8,
               numButton9,
-              const MarkButton(buttonMark: '×', backGroundColor: Colors.orange),
+              multiButton,
             ],
           ),
           Row(
@@ -122,7 +317,7 @@ class _MyHomePageState extends State<MyHomePage> {
               numButton4,
               numButton5,
               numButton6,
-              const MarkButton(buttonMark: '－', backGroundColor: Colors.orange),
+              minusButton,
             ],
           ),
           Row(
@@ -131,7 +326,7 @@ class _MyHomePageState extends State<MyHomePage> {
               numButton1,
               numButton2,
               numButton3,
-              const MarkButton(buttonMark: '＋', backGroundColor: Colors.orange),
+              plusButton,
             ],
           ),
           Row(
@@ -163,93 +358,16 @@ class _MyHomePageState extends State<MyHomePage> {
                   buttonMark: '.',
                   backGroundColor: Colors.white12,
                   onPressed: () => dotText()),
-              const MarkButton(buttonMark: '=', backGroundColor: Colors.orange),
+              equalButton,
             ],
           ),
         ],
       ),
     );
   }
-  static final controller = StreamController<String>.broadcast();
-
-  @override
-
-  void initState() {
-    super.initState();
-    controller.stream.listen((event) => addNumText(event));
-    controller.stream.listen((event) => Calculator.button(event));
-  }
 }
 
-class NumButton extends StatefulWidget {
-  const NumButton({Key? key, required this.buttonNum, required this.onPressed})
-      : super(key: key);
-  final String buttonNum;
-  final VoidCallback onPressed;
 
-  @override
-  State<NumButton> createState() => _NumButtonState();
-}
 
-class _NumButtonState extends State<NumButton> {
 
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 80,
-      height: 80,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.white12,
-          shape: const CircleBorder(),
-        ),
-        onPressed: (){widget.onPressed;},
-        child: Text(
-          widget.buttonNum,
-          style: const TextStyle(
-            fontSize: 38,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class MarkButton extends StatefulWidget {
-  const MarkButton(
-      {Key? key,
-        required this.buttonMark,
-        required this.backGroundColor,
-        this.onPressed})
-      : super(key: key);
-  final String buttonMark;
-  final Color backGroundColor;
-  final VoidCallback? onPressed;
-
-  @override
-  State<MarkButton> createState() => _MarkButtonState();
-}
-
-class _MarkButtonState extends State<MarkButton> {
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 80,
-      height: 80,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: widget.backGroundColor,
-          shape: const CircleBorder(),
-        ),
-        onPressed: widget.onPressed ?? () {},
-        child: Text(
-          widget.buttonMark,
-          style: const TextStyle(
-            fontSize: 38,
-          ),
-        ),
-      ),
-    );
-  }
-}
 
