@@ -1,5 +1,5 @@
-import 'package:calculator2/calculator.dart';
-import 'package:calculator2/view/components/calculator_button.dart';
+import 'package:calculator/calculator.dart';
+import 'package:calculator/view/components/calculator_button.dart';
 import 'package:flutter/material.dart';
 
 class CalculatorPage extends StatefulWidget {
@@ -16,7 +16,7 @@ class _CalculatorPageState extends State<CalculatorPage> {
   String value = '0';
 
   //valueを変更する関数
-  void addNumText(String letter) {
+  void inputNumText(String letter) {
     setState(() {
       if (value == '0') {
         value = letter;
@@ -27,12 +27,12 @@ class _CalculatorPageState extends State<CalculatorPage> {
   }
 
   //小数点を入力する関数
-  void dotText() {
+  void inputDotText() {
     setState(() {
-      if (value.contains('.') == true) {
+      if (value.contains(',') == true) {
         value = value;
       } else {
-        value = '$value.';
+        value = '$value,';
       }
     });
   }
@@ -99,15 +99,15 @@ class _CalculatorPageState extends State<CalculatorPage> {
               CalcuratorButton(
                   title: '7',
                   theme: CalcuratorButtonTheme.number,
-                  onPressed: () => addNumText('7')),
+                  onPressed: () => inputNumText('7')),
               CalcuratorButton(
                   title: '8',
                   theme: CalcuratorButtonTheme.number,
-                  onPressed: () => addNumText('8')),
+                  onPressed: () => inputNumText('8')),
               CalcuratorButton(
                   title: '9',
                   theme: CalcuratorButtonTheme.number,
-                  onPressed: () => addNumText('9')),
+                  onPressed: () => inputNumText('9')),
               CalcuratorButton(
                 title: 'x',
                 theme: CalcuratorButtonTheme.operator,
@@ -127,15 +127,15 @@ class _CalculatorPageState extends State<CalculatorPage> {
               CalcuratorButton(
                   title: '4',
                   theme: CalcuratorButtonTheme.number,
-                  onPressed: () => addNumText('4')),
+                  onPressed: () => inputNumText('4')),
               CalcuratorButton(
                   title: '5',
                   theme: CalcuratorButtonTheme.number,
-                  onPressed: () => addNumText('5')),
+                  onPressed: () => inputNumText('5')),
               CalcuratorButton(
                   title: '6',
                   theme: CalcuratorButtonTheme.number,
-                  onPressed: () => addNumText('6')),
+                  onPressed: () => inputNumText('6')),
               CalcuratorButton(
                 title: '-',
                 theme: CalcuratorButtonTheme.operator,
@@ -155,15 +155,15 @@ class _CalculatorPageState extends State<CalculatorPage> {
               CalcuratorButton(
                   title: '1',
                   theme: CalcuratorButtonTheme.number,
-                  onPressed: () => addNumText('1')),
+                  onPressed: () => inputNumText('1')),
               CalcuratorButton(
                   title: '2',
                   theme: CalcuratorButtonTheme.number,
-                  onPressed: () => addNumText('2')),
+                  onPressed: () => inputNumText('2')),
               CalcuratorButton(
                   title: '3',
                   theme: CalcuratorButtonTheme.number,
-                  onPressed: () => addNumText('3')),
+                  onPressed: () => inputNumText('3')),
               CalcuratorButton(
                 title: '+',
                 theme: CalcuratorButtonTheme.operator,
@@ -184,11 +184,11 @@ class _CalculatorPageState extends State<CalculatorPage> {
               CalcuratorButton(
                   title: '0',
                   theme: CalcuratorButtonTheme.number,
-                  onPressed: () => addNumText('0')),
+                  onPressed: () => inputNumText('0')),
               CalcuratorButton(
                   title: ',',
                   theme: CalcuratorButtonTheme.number,
-                  onPressed: () => dotText()),
+                  onPressed: () => inputDotText()),
               CalcuratorButton(
                 title: '=',
                 theme: CalcuratorButtonTheme.operator,
