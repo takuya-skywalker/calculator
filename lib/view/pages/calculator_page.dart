@@ -13,26 +13,55 @@ class _CalculatorPageState extends State<CalculatorPage> {
   Calculator calculator = Calculator();
 
   //計算機に実際に表示される値
+  String text = '0';
   String value = '0';
+  bool isOperation = false;
 
   //valueを変更する関数
   void inputNumText(String letter) {
+    isOperation = false;
     setState(() {
+      if (value.length >= 9) {
+        return;
+      }
+
       if (value == '0') {
         value = letter;
+      } else if (value == '-0') {
+        value = '-$letter';
       } else {
         value += letter;
       }
+
+      if (value != text) {
+        text = value;
+      }
+    });
+  }
+
+  //符号入力
+  void inputSign() {
+    setState(() {
+      value = calculator.sign(value);
+      text = value;
+    });
+  }
+
+  //パーセント
+  void inputPer() {
+    setState(() {
+      value = calculator.per(value);
+      text = value;
     });
   }
 
   //小数点を入力する関数
   void inputDotText() {
     setState(() {
-      if (value.contains(',') == true) {
+      if (value.contains('.') == true) {
         value = value;
       } else {
-        value = '$value,';
+        value = '$value.';
       }
     });
   }
@@ -40,8 +69,10 @@ class _CalculatorPageState extends State<CalculatorPage> {
   //valueを0にする関数
   void clearNumText() {
     setState(() {
-      calculator.clear();
+      calculator.init();
       value = '0';
+      text = '0';
+      isOperation = false;
     });
   }
 
@@ -58,9 +89,13 @@ class _CalculatorPageState extends State<CalculatorPage> {
           Container(
             height: 100,
             alignment: Alignment.centerRight,
-            child: Text(
-              value,
-              style: const TextStyle(fontSize: 75, color: Colors.white),
+            padding: const EdgeInsets.only(right: 8.0, left: 8.0),
+            child: FittedBox(
+              fit: BoxFit.fitWidth,
+              child: Text(
+                text,
+                style: const TextStyle(fontSize: 75, color: Colors.white),
+              ),
             ),
           ),
           Row(
@@ -73,21 +108,25 @@ class _CalculatorPageState extends State<CalculatorPage> {
               CalcuratorButton(
                 title: '±',
                 theme: CalcuratorButtonTheme.other,
-                onPressed: () {},
+                onPressed: inputSign,
               ),
               CalcuratorButton(
                 title: '%',
                 theme: CalcuratorButtonTheme.other,
-                onPressed: () {},
+                onPressed: inputPer,
               ),
               CalcuratorButton(
                 title: '÷',
                 theme: CalcuratorButtonTheme.operator,
                 onPressed: () {
                   setState(() {
-                    calculator.addValue(value);
-                    calculator.addValue('/');
+                    if (!isOperation) {
+                      calculator.push(value);
+                    }
+                    isOperation = true;
+                    calculator.push('/');
                     value = '0';
+                    text = calculator.calculateFromStack();
                   });
                 },
               ),
@@ -113,9 +152,13 @@ class _CalculatorPageState extends State<CalculatorPage> {
                 theme: CalcuratorButtonTheme.operator,
                 onPressed: () {
                   setState(() {
-                    calculator.addValue(value);
-                    calculator.addValue('*');
+                    if (!isOperation) {
+                      calculator.push(value);
+                    }
+                    isOperation = true;
+                    calculator.push('*');
                     value = '0';
+                    text = calculator.calculateFromStack();
                   });
                 },
               ),
@@ -141,9 +184,13 @@ class _CalculatorPageState extends State<CalculatorPage> {
                 theme: CalcuratorButtonTheme.operator,
                 onPressed: () {
                   setState(() {
-                    calculator.addValue(value);
-                    calculator.addValue('-');
+                    if (!isOperation) {
+                      calculator.push(value);
+                    }
+                    isOperation = true;
+                    calculator.push('-');
                     value = '0';
+                    text = calculator.calculateFromStack();
                   });
                 },
               ),
@@ -169,9 +216,13 @@ class _CalculatorPageState extends State<CalculatorPage> {
                 theme: CalcuratorButtonTheme.operator,
                 onPressed: () {
                   setState(() {
-                    calculator.addValue(value);
-                    calculator.addValue('+');
+                    if (!isOperation) {
+                      calculator.push(value);
+                    }
+                    isOperation = true;
+                    calculator.push('+');
                     value = '0';
+                    text = calculator.calculateFromStack();
                   });
                 },
               ),
@@ -194,9 +245,11 @@ class _CalculatorPageState extends State<CalculatorPage> {
                 theme: CalcuratorButtonTheme.operator,
                 onPressed: () {
                   setState(() {
-                    calculator.addValue(value);
-                    calculator.calculate();
-                    value = calculator.answer ?? '0';
+                    calculator.push(value);
+                    calculator.convert();
+                    value = calculator.calculateFromConvertedStack();
+                    text = value;
+                    calculator.init();
                   });
                 },
               ),
