@@ -1,6 +1,5 @@
 import 'package:calculator2/calculator.dart';
-import 'package:calculator2/view/components/mark_button.dart';
-import 'package:calculator2/view/components/num_button.dart';
+import 'package:calculator2/view/components/calculator_button.dart';
 import 'package:flutter/material.dart';
 
 class CalculatorPage extends StatefulWidget {
@@ -48,85 +47,6 @@ class _CalculatorPageState extends State<CalculatorPage> {
 
   @override
   Widget build(BuildContext context) {
-    NumButton numButton1 =
-        NumButton(buttonNum: '1', onPressed: () => addNumText('1'));
-    NumButton numButton2 =
-        NumButton(buttonNum: '2', onPressed: () => addNumText('2'));
-    NumButton numButton3 =
-        NumButton(buttonNum: '3', onPressed: () => addNumText('3'));
-    NumButton numButton4 =
-        NumButton(buttonNum: '4', onPressed: () => addNumText('4'));
-    NumButton numButton5 =
-        NumButton(buttonNum: '5', onPressed: () => addNumText('5'));
-    NumButton numButton6 =
-        NumButton(buttonNum: '6', onPressed: () => addNumText('6'));
-    NumButton numButton7 =
-        NumButton(buttonNum: '7', onPressed: () => addNumText('7'));
-    NumButton numButton8 =
-        NumButton(buttonNum: '8', onPressed: () => addNumText('8'));
-    NumButton numButton9 =
-        NumButton(buttonNum: '9', onPressed: () => addNumText('9'));
-
-    MarkButton plusButton = MarkButton(
-      buttonMark: '+',
-      backGroundColor: Colors.orange,
-      onPressed: () {
-        setState(() {
-          calculator.addValue(value);
-          calculator.addValue('+');
-          value = '0';
-        });
-      },
-    );
-
-    MarkButton minusButton = MarkButton(
-      buttonMark: '-',
-      backGroundColor: Colors.orange,
-      onPressed: () {
-        setState(() {
-          calculator.addValue(value);
-          calculator.addValue('-');
-          value = '0';
-        });
-      },
-    );
-
-    MarkButton multiButton = MarkButton(
-      buttonMark: '×',
-      backGroundColor: Colors.orange,
-      onPressed: () {
-        setState(() {
-          calculator.addValue(value);
-          calculator.addValue('*');
-          value = '0';
-        });
-      },
-    );
-
-    MarkButton divButton = MarkButton(
-      buttonMark: '÷',
-      backGroundColor: Colors.orange,
-      onPressed: () {
-        setState(() {
-          calculator.addValue(value);
-          calculator.addValue('/');
-          value = '0';
-        });
-      },
-    );
-
-    MarkButton equalButton = MarkButton(
-      buttonMark: '=',
-      backGroundColor: Colors.orange,
-      onPressed: () {
-        setState(() {
-          calculator.addValue(value);
-          calculator.calculate();
-          value = calculator.answer ?? '0';
-        });
-      },
-    );
-
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -146,74 +66,140 @@ class _CalculatorPageState extends State<CalculatorPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              MarkButton(
-                  buttonMark: 'C',
-                  backGroundColor: Colors.white38,
+              CalcuratorButton(
+                  title: 'C',
+                  theme: CalcuratorButtonTheme.other,
                   onPressed: () => clearNumText()),
-              const MarkButton(
-                  buttonMark: '±', backGroundColor: Colors.white38),
-              const MarkButton(
-                  buttonMark: '%', backGroundColor: Colors.white38),
-              divButton,
+              CalcuratorButton(
+                title: '±',
+                theme: CalcuratorButtonTheme.other,
+                onPressed: () {},
+              ),
+              CalcuratorButton(
+                title: '%',
+                theme: CalcuratorButtonTheme.other,
+                onPressed: () {},
+              ),
+              CalcuratorButton(
+                title: '÷',
+                theme: CalcuratorButtonTheme.operator,
+                onPressed: () {
+                  setState(() {
+                    calculator.addValue(value);
+                    calculator.addValue('/');
+                    value = '0';
+                  });
+                },
+              ),
             ],
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              numButton7,
-              numButton8,
-              numButton9,
-              multiButton,
+              CalcuratorButton(
+                  title: '7',
+                  theme: CalcuratorButtonTheme.number,
+                  onPressed: () => addNumText('7')),
+              CalcuratorButton(
+                  title: '8',
+                  theme: CalcuratorButtonTheme.number,
+                  onPressed: () => addNumText('8')),
+              CalcuratorButton(
+                  title: '9',
+                  theme: CalcuratorButtonTheme.number,
+                  onPressed: () => addNumText('9')),
+              CalcuratorButton(
+                title: 'x',
+                theme: CalcuratorButtonTheme.operator,
+                onPressed: () {
+                  setState(() {
+                    calculator.addValue(value);
+                    calculator.addValue('*');
+                    value = '0';
+                  });
+                },
+              ),
             ],
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              numButton4,
-              numButton5,
-              numButton6,
-              minusButton,
+              CalcuratorButton(
+                  title: '4',
+                  theme: CalcuratorButtonTheme.number,
+                  onPressed: () => addNumText('4')),
+              CalcuratorButton(
+                  title: '5',
+                  theme: CalcuratorButtonTheme.number,
+                  onPressed: () => addNumText('5')),
+              CalcuratorButton(
+                  title: '6',
+                  theme: CalcuratorButtonTheme.number,
+                  onPressed: () => addNumText('6')),
+              CalcuratorButton(
+                title: '-',
+                theme: CalcuratorButtonTheme.operator,
+                onPressed: () {
+                  setState(() {
+                    calculator.addValue(value);
+                    calculator.addValue('-');
+                    value = '0';
+                  });
+                },
+              ),
             ],
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              numButton1,
-              numButton2,
-              numButton3,
-              plusButton,
+              CalcuratorButton(
+                  title: '1',
+                  theme: CalcuratorButtonTheme.number,
+                  onPressed: () => addNumText('1')),
+              CalcuratorButton(
+                  title: '2',
+                  theme: CalcuratorButtonTheme.number,
+                  onPressed: () => addNumText('2')),
+              CalcuratorButton(
+                  title: '3',
+                  theme: CalcuratorButtonTheme.number,
+                  onPressed: () => addNumText('3')),
+              CalcuratorButton(
+                title: '+',
+                theme: CalcuratorButtonTheme.operator,
+                onPressed: () {
+                  setState(() {
+                    calculator.addValue(value);
+                    calculator.addValue('+');
+                    value = '0';
+                  });
+                },
+              ),
             ],
           ),
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
-              SizedBox(
-                width: 180,
-                height: 80,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white12,
-                    shape: const StadiumBorder(),
-                  ),
-                  onPressed: () => addNumText('0'),
-                  child: Container(
-                    width: double.infinity,
-                    alignment: const Alignment(-0.75, 0),
-                    child: Text(
-                      0.toString(),
-                      style: const TextStyle(
-                        fontSize: 38,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              MarkButton(
-                  buttonMark: '.',
-                  backGroundColor: Colors.white12,
+              CalcuratorButton(
+                  title: '0',
+                  theme: CalcuratorButtonTheme.number,
+                  onPressed: () => addNumText('0')),
+              CalcuratorButton(
+                  title: ',',
+                  theme: CalcuratorButtonTheme.number,
                   onPressed: () => dotText()),
-              equalButton,
+              CalcuratorButton(
+                title: '=',
+                theme: CalcuratorButtonTheme.operator,
+                onPressed: () {
+                  setState(() {
+                    calculator.addValue(value);
+                    calculator.calculate();
+                    value = calculator.answer ?? '0';
+                  });
+                },
+              ),
             ],
           ),
         ],
