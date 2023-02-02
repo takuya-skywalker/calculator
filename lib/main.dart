@@ -1,6 +1,8 @@
 import 'package:calculator2/buttons/mark_button.dart';
 import 'package:calculator2/buttons/num_button.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
 
 
 void main() {
@@ -27,6 +29,7 @@ class CalculatorPage extends StatefulWidget {
 
 class _CalculatorPageState extends State<CalculatorPage> {
 
+  String textNum = '0';
   //実際に表示される値
   String value = '0';
   //valueを保管しておく
@@ -38,6 +41,7 @@ class _CalculatorPageState extends State<CalculatorPage> {
   //計算結果を一時的に保管
   double resultNum = 0;
 
+  final formatter = NumberFormat("#,###");
 
   //数字を押したときの処理
   void addNumText(String num) {
@@ -46,25 +50,53 @@ class _CalculatorPageState extends State<CalculatorPage> {
       if(nums.length == marks.length && marks.contains('%') == false){
         value = '0';
         value = num;
+        textNum = num;
         nums.add(num);
       //％の後にすぐ数字を入力した場合
       } else if(nums.length == marks.length && marks.contains('%')){
         nums[index] = num;
         marks.removeLast();
         value = num;
+        textNum = num;
       //数字入力の基本
       }else {
         if (value == '0') {
           value = num;
+          textNum = num;
           nums.first = num;
-        } else {
-          value += num;
+        }else if(value == '-0'){
+          value = value.replaceFirst('0', num);
           nums[index] = value;
+          textNum = value;
+        }else if (textNum.endsWith('.')) {
+          value = '$value.$num';
+          nums[index] = value;
+          textNum += num;
+        } else if (value.length == 9 && value.contains('.') == false && value.contains('-') == false) {
+        } else if (value.length == 10 && value.contains('.') && value.contains('-') == false) {
+        } else if (value.length == 10 && value.contains('-') && value.contains('.') == false) {
+        } else if (value.length == 11 && value.contains('.') && value.contains('-')) {
+        }else{
+          if (value.contains('.')) {
+            value += num;
+            textNum += num;
+            nums[index] = value;
+          }else{
+            value += num;
+            textNum += num;
+            nums[index] = value;
+            textNum = formatter.format(double.parse(value));
+          }
         }
       }
-
+      print(textNum);
+      print(value);
+      print(nums);
+      print(marks);
+      print(resultNum);
     });
   }
+
   //+-×÷=が押された時の計算処理など
   void calculateFormula(){
     for(int i = 0; nums.length > i; i++){
@@ -74,41 +106,68 @@ class _CalculatorPageState extends State<CalculatorPage> {
           case '＋':
             resultNum += double.parse(nums[i]);
             value = resultNum.toString();
+            textNum = value;
             if(value.endsWith('.0')){
               value = value.substring(0,value.length - 2);
+              textNum = value;
+              nums[index] = value;
             }
             break;
           case '－':
             resultNum -= double.parse(nums[i]);
             value = resultNum.toString();
+            textNum = value;
             if(value.endsWith('.0')){
               value = value.substring(0,value.length - 2);
+              textNum = value;
+            }
+            if(nums[index].endsWith('.0')){
+              nums[index] = nums[index].substring(0,nums[index].length - 2);
             }
             break;
           case '×':
             resultNum *= double.parse(nums[i]);
             value = resultNum.toString();
+            textNum = value;
             if(value.endsWith('.0')){
               value = value.substring(0,value.length - 2);
+              textNum = value;
+            }
+            if(nums[index].endsWith('.0')){
+              nums[index] = nums[index].substring(0,nums[index].length - 2);
             }
             break;
           case '÷':
             resultNum /= double.parse(nums[i]);
             value = resultNum.toString();
+            textNum = value;
             if(value.endsWith('.0')){
               value = value.substring(0,value.length - 2);
+              textNum = value;
+            }
+            if(nums[index].endsWith('.0')){
+              nums[index] = nums[index].substring(0,nums[index].length - 2);
             }
             break;
         }
       }
     }
+    print(textNum);
+    print(value);
+    print(nums);
+    print(marks);
+    print(resultNum);
   }
 
-  void plusOrMinus (){
+  void changeSign (){
     if(value.contains('-')){
       value = value.substring(1,value.length);
-    } else {
+      textNum = textNum.substring(1,textNum.length);
+      nums[index] = nums[index].substring(1,nums[index].length);
+    }else{
       value = '-$value';
+      textNum = '-$textNum';
+      nums[index] = value;
     }
   }
 
@@ -117,7 +176,8 @@ class _CalculatorPageState extends State<CalculatorPage> {
       if(index == 0){
         resultNum = double.parse(nums[0]) / 100;
         value = resultNum.toString();
-        nums[0] = resultNum.toString();
+        nums[0] = value;
+        textNum = value;
         marks.add('%');
       }else{
         nums[index] = (resultNum * double.parse(nums[index]) / 100).toString();
@@ -134,10 +194,10 @@ class _CalculatorPageState extends State<CalculatorPage> {
   //小数点を入力する関数
   void dotText() {
     setState(() {
-      if(value.contains('.') == true){
-        value = value;
+      if(textNum.contains('.')){
+        textNum = textNum;
       }else{
-        value = '$value.';
+        textNum = '$textNum.';
       }
     });
   }
@@ -150,6 +210,7 @@ class _CalculatorPageState extends State<CalculatorPage> {
       marks = [];
       resultNum = 0;
       index = 0;
+      textNum = '0';
     });
   }
 
@@ -182,10 +243,16 @@ class _CalculatorPageState extends State<CalculatorPage> {
           if(marks.contains('%')){
             marks.removeLast();
           }
+          if(marks.contains('=')){
+            marks.removeLast();
+          }
           if(nums.length > marks.length) {
             index++;
             marks.add('＋');
             calculateFormula();
+          }else{
+            marks.removeLast();
+            marks.add('＋');
           }
         });
       },
@@ -199,10 +266,16 @@ class _CalculatorPageState extends State<CalculatorPage> {
           if(marks.contains('%')){
             marks.removeLast();
           }
+          if(marks.contains('=')){
+            marks.removeLast();
+          }
           if(nums.length > marks.length) {
             index++;
             marks.add('－');
             calculateFormula();
+          }else {
+            marks.removeLast();
+            marks.add('－');
           }
         });
       },
@@ -216,10 +289,16 @@ class _CalculatorPageState extends State<CalculatorPage> {
           if(marks.contains('%')){
             marks.removeLast();
           }
+          if(marks.contains('=')){
+            marks.removeLast();
+          }
           if(nums.length > marks.length) {
             index++;
             marks.add('×');
             calculateFormula();
+          }else {
+            marks.removeLast();
+            marks.add('×');
           }
         });
       },
@@ -233,10 +312,16 @@ class _CalculatorPageState extends State<CalculatorPage> {
           if(marks.contains('%')){
             marks.removeLast();
           }
+          if(marks.contains('=')){
+            marks.removeLast();
+          }
           if(nums.length > marks.length) {
             index++;
             marks.add('÷');
             calculateFormula();
+          }else {
+            marks.removeLast();
+            marks.add('÷');
           }
         });
       },
@@ -250,7 +335,16 @@ class _CalculatorPageState extends State<CalculatorPage> {
           calculateFormula();
           marks.clear();
           nums.clear();
+          marks.add('=');
           nums.add(resultNum.toString());
+          if(nums[0].endsWith('.0')){
+            nums[0] = nums[0].substring(0,nums[0].length - 2);
+          }
+          print(textNum);
+          print(value);
+          print(nums);
+          print(marks);
+          print(nums);
         });
       },
     );
@@ -260,7 +354,7 @@ class _CalculatorPageState extends State<CalculatorPage> {
         backGroundColor: Colors.white38,
         onPressed: (){
           setState(() {
-            plusOrMinus();
+            changeSign();
           });
         }
     );
@@ -276,18 +370,19 @@ class _CalculatorPageState extends State<CalculatorPage> {
 
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-      ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           Container(
-            height: 100,
+            margin: const EdgeInsets.only(left:15, top:120, right:15, bottom:5),
+            height: 110,
             alignment: Alignment.centerRight,
-            child: Text(
-              value,
-              style: const TextStyle(fontSize: 75, color: Colors.white),
+            child: FittedBox(
+              fit: BoxFit.fitWidth ,
+              child: Text(
+                textNum,
+                style: const TextStyle(fontSize: 100, color: Colors.white, fontWeight: FontWeight.w300),
+              ),
             ),
           ),
           Row(
