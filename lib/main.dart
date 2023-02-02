@@ -29,8 +29,8 @@ class CalculatorPage extends StatefulWidget {
 
 class _CalculatorPageState extends State<CalculatorPage> {
 
-  String textNum = '0';
   //実際に表示される値
+  String textNum = '0';
   String value = '0';
   //valueを保管しておく
   List<String> nums = ['0'];
@@ -41,6 +41,7 @@ class _CalculatorPageState extends State<CalculatorPage> {
   //計算結果を一時的に保管
   double resultNum = 0;
 
+  //3桁ごとにカンマ
   final formatter = NumberFormat("#,###");
 
   //数字を押したときの処理
@@ -106,47 +107,37 @@ class _CalculatorPageState extends State<CalculatorPage> {
           case '＋':
             resultNum += double.parse(nums[i]);
             value = resultNum.toString();
-            textNum = value;
+            textNum = formatter.format(double.parse(value));
             if(value.endsWith('.0')){
               value = value.substring(0,value.length - 2);
-              textNum = value;
-              nums[index] = value;
+              textNum = formatter.format(double.parse(value));
             }
             break;
           case '－':
             resultNum -= double.parse(nums[i]);
             value = resultNum.toString();
-            textNum = value;
+            textNum = formatter.format(double.parse(value));
             if(value.endsWith('.0')){
               value = value.substring(0,value.length - 2);
-              textNum = value;
-            }
-            if(nums[index].endsWith('.0')){
-              nums[index] = nums[index].substring(0,nums[index].length - 2);
+              textNum = formatter.format(double.parse(value));
             }
             break;
           case '×':
             resultNum *= double.parse(nums[i]);
             value = resultNum.toString();
-            textNum = value;
+            textNum = formatter.format(double.parse(value));
             if(value.endsWith('.0')){
               value = value.substring(0,value.length - 2);
-              textNum = value;
-            }
-            if(nums[index].endsWith('.0')){
-              nums[index] = nums[index].substring(0,nums[index].length - 2);
+              textNum = formatter.format(double.parse(value));
             }
             break;
           case '÷':
             resultNum /= double.parse(nums[i]);
             value = resultNum.toString();
-            textNum = value;
+            textNum = formatter.format(double.parse(value));
             if(value.endsWith('.0')){
               value = value.substring(0,value.length - 2);
-              textNum = value;
-            }
-            if(nums[index].endsWith('.0')){
-              nums[index] = nums[index].substring(0,nums[index].length - 2);
+              textNum = formatter.format(double.parse(value));
             }
             break;
         }
@@ -247,13 +238,13 @@ class _CalculatorPageState extends State<CalculatorPage> {
             marks.removeLast();
           }
           if(nums.length > marks.length) {
-            index++;
             marks.add('＋');
             calculateFormula();
           }else{
             marks.removeLast();
             marks.add('＋');
           }
+          index++;
         });
       },
     );
@@ -270,13 +261,13 @@ class _CalculatorPageState extends State<CalculatorPage> {
             marks.removeLast();
           }
           if(nums.length > marks.length) {
-            index++;
             marks.add('－');
             calculateFormula();
           }else {
             marks.removeLast();
             marks.add('－');
           }
+          index++;
         });
       },
     );
@@ -293,13 +284,13 @@ class _CalculatorPageState extends State<CalculatorPage> {
             marks.removeLast();
           }
           if(nums.length > marks.length) {
-            index++;
             marks.add('×');
             calculateFormula();
           }else {
             marks.removeLast();
             marks.add('×');
           }
+          index++;
         });
       },
     );
@@ -316,13 +307,13 @@ class _CalculatorPageState extends State<CalculatorPage> {
             marks.removeLast();
           }
           if(nums.length > marks.length) {
-            index++;
             marks.add('÷');
             calculateFormula();
           }else {
             marks.removeLast();
             marks.add('÷');
           }
+          index++;
         });
       },
     );
@@ -335,6 +326,7 @@ class _CalculatorPageState extends State<CalculatorPage> {
           calculateFormula();
           marks.clear();
           nums.clear();
+          index = 0;
           marks.add('=');
           nums.add(resultNum.toString());
           if(nums[0].endsWith('.0')){
@@ -345,6 +337,7 @@ class _CalculatorPageState extends State<CalculatorPage> {
           print(nums);
           print(marks);
           print(nums);
+          print(index);
         });
       },
     );
