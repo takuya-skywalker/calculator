@@ -41,6 +41,14 @@ class _CalculatorPageState extends State<CalculatorPage> {
   //計算結果を一時的に保管
   double resultNum = 0;
 
+  List<String> stackNums = [];
+
+  List<String> stackMarks = [];
+
+  double stackResult = 0;
+
+  double? res;
+
   //3桁ごとにカンマ
   final formatter = NumberFormat("#,###");
 
@@ -54,14 +62,21 @@ class _CalculatorPageState extends State<CalculatorPage> {
         textNum = num;
         nums.add(num);
       //％の後にすぐ数字を入力した場合
-      } else if(nums.length == marks.length && marks.contains('%')){
+      }else if(nums.length == marks.length && marks.contains('%')){
         nums[index] = num;
         marks.removeLast();
         value = num;
         textNum = num;
       //数字入力の基本
-      }else {
-        if (value == '0') {
+      }else{
+        int length = value.length;
+        if(value.contains('-')){
+          length = length - 1;
+        }
+        if(value.contains('.')) {
+          length = length - 1;
+        }
+        if(value == '0' && textNum == '0') {
           value = num;
           textNum = num;
           nums.first = num;
@@ -69,14 +84,11 @@ class _CalculatorPageState extends State<CalculatorPage> {
           value = value.replaceFirst('0', num);
           nums[index] = value;
           textNum = value;
-        }else if (textNum.endsWith('.')) {
+        }else if(length >= 9) {
+        }else if(textNum.endsWith('.')) {
           value = '$value.$num';
           nums[index] = value;
           textNum += num;
-        } else if (value.length == 9 && value.contains('.') == false && value.contains('-') == false) {
-        } else if (value.length == 10 && value.contains('.') && value.contains('-') == false) {
-        } else if (value.length == 10 && value.contains('-') && value.contains('.') == false) {
-        } else if (value.length == 11 && value.contains('.') && value.contains('-')) {
         }else{
           if (value.contains('.')) {
             value += num;
@@ -90,19 +102,57 @@ class _CalculatorPageState extends State<CalculatorPage> {
           }
         }
       }
-      print(textNum);
-      print(value);
-      print(nums);
-      print(marks);
-      print(resultNum);
     });
+  }
+
+  void behindCalculation(){
+    stackMarks = marks;
+    stackNums = nums;
+    for(int i = stackNums.length; i > 0; i--){
+      if(stackMarks.contains('÷')){
+        int divIndex = stackMarks.indexOf('÷');
+        stackResult = double.parse(stackNums[divIndex]) / double.parse(stackNums[divIndex + 1]);
+        stackNums[divIndex] = stackResult.toString();
+        stackNums.removeAt(divIndex + 1);
+        stackMarks.removeAt(divIndex);
+      }else if(stackMarks.contains('×')){
+        int multiIndex = stackMarks.indexOf('×');
+        stackResult = double.parse(stackNums[multiIndex]) * double.parse(stackNums[multiIndex + 1]);
+        stackNums[multiIndex] = stackResult.toString();
+        stackNums.removeAt(multiIndex + 1);
+        stackMarks.removeAt(multiIndex);
+      }else{
+        if(stackMarks.length > 1){
+          if(stackMarks.first == '＋'){
+            stackResult = double.parse(stackNums[0]) + double.parse(stackNums[1]);
+            stackNums[0] = stackResult.toString();
+            stackNums.removeAt(1);
+            stackMarks.removeAt(0);
+          }else{
+            stackResult = double.parse(stackNums[0]) - double.parse(stackNums[1]);
+            stackNums[0] = stackResult.toString();
+            stackNums.removeAt(1);
+            stackMarks.removeAt(0);
+          }
+        }else{
+          if(stackMarks.first == '＋'){
+            stackResult = double.parse(stackNums[0]) + double.parse(stackNums[1]);
+          }else{
+            stackResult = double.parse(stackNums[0]) - double.parse(stackNums[1]);
+          }
+        }
+      }
+    }
+    value = stackResult.toString();
+    textNum = value;
   }
 
   //+-×÷=が押された時の計算処理など
   void calculateFormula(){
     for(int i = 0; nums.length > i; i++){
-      if(i == 0){resultNum = double.parse(nums.first);}
-      else if(marks.length > i - 1){
+      if(i == 0){
+        resultNum = double.parse(nums.first);
+      }else if(marks.length > i - 1){
         switch(marks[i - 1]){
           case '＋':
             resultNum += double.parse(nums[i]);
@@ -143,11 +193,6 @@ class _CalculatorPageState extends State<CalculatorPage> {
         }
       }
     }
-    print(textNum);
-    print(value);
-    print(nums);
-    print(marks);
-    print(resultNum);
   }
 
   void changeSign (){
@@ -187,6 +232,8 @@ class _CalculatorPageState extends State<CalculatorPage> {
     setState(() {
       if(textNum.contains('.')){
         textNum = textNum;
+      }else if(value.length >= 10 && value.contains('-')) {
+      }else if(value.length >= 9 && !value.contains('-')) {
       }else{
         textNum = '$textNum.';
       }
@@ -237,6 +284,7 @@ class _CalculatorPageState extends State<CalculatorPage> {
           if(marks.contains('=')){
             marks.removeLast();
           }
+
           if(nums.length > marks.length) {
             marks.add('＋');
             calculateFormula();
@@ -323,20 +371,24 @@ class _CalculatorPageState extends State<CalculatorPage> {
       backGroundColor: Colors.orange,
       onPressed: (){
         setState(() {
-          calculateFormula();
+          behindCalculation();
           marks.clear();
           nums.clear();
           index = 0;
+          stackResult = 0;
+          stackMarks.clear();
+          stackNums.clear();
           marks.add('=');
           nums.add(resultNum.toString());
-          if(nums[0].endsWith('.0')){
-            nums[0] = nums[0].substring(0,nums[0].length - 2);
+          if(textNum.endsWith('.0')){
+            textNum = textNum.substring(0,textNum.length - 2);
           }
+          textNum = formatter.format(double.parse(value));
+
           print(textNum);
           print(value);
           print(nums);
           print(marks);
-          print(nums);
           print(index);
         });
       },
